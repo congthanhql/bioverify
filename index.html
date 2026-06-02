@@ -1,0 +1,396 @@
+# bioverify
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>THAM GIA CHIẾN DỊCH SỐ HÓA THPT 2026 - 2027</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+background:#f5f7fb;
+padding:20px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+}
+
+.card{
+background:#fff;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+margin-bottom:20px;
+}
+
+h1{
+text-align:center;
+color:#0f172a;
+margin-bottom:10px;
+}
+
+.desc{
+text-align:center;
+color:#64748b;
+margin-bottom:25px;
+}
+
+input,select{
+width:100%;
+padding:14px;
+border:1px solid #ddd;
+border-radius:12px;
+margin-bottom:15px;
+font-size:15px;
+}
+
+button{
+width:100%;
+padding:15px;
+border:none;
+background:#2563eb;
+color:#fff;
+font-size:16px;
+border-radius:12px;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.9;
+}
+
+.priceBox{
+display:none;
+text-align:center;
+padding:20px;
+border-radius:15px;
+background:#ecfeff;
+margin-top:20px;
+}
+
+.price{
+font-size:28px;
+font-weight:700;
+color:#dc2626;
+}
+
+.qr{
+margin-top:15px;
+width:250px;
+max-width:100%;
+}
+
+.adminLogin{
+display:none;
+}
+
+.adminPanel{
+display:none;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:10px;
+text-align:center;
+}
+
+th{
+background:#2563eb;
+color:#fff;
+}
+
+.badge{
+display:inline-block;
+background:#22c55e;
+color:#fff;
+padding:4px 10px;
+border-radius:30px;
+font-size:12px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h1>THAM GIA CHIẾN DỊCH SỐ HÓA THPT 2026 - 2027</h1>
+
+<div class="desc">
+Nhận quyền lợi:
+<br><br>
+✅ Kho đề thi THPT
+<br>
+✅ Ôn luyện Azota
+<br>
+✅ Ôn luyện OLM
+<br>
+✅ Tài liệu học tập số hóa
+</div>
+
+<input id="name" placeholder="Họ Và Tên">
+
+<input id="phone" placeholder="Số Điện Thoại (Zalo)">
+
+<input id="gmail" placeholder="Địa Chỉ Gmail">
+
+<input id="lop" placeholder="Học Sinh Lớp">
+
+<select id="school">
+<option value="">-- Chọn Trường --</option>
+<option value="27000">THPT Phạm Văn Đồng</option>
+<option value="32000">THPT Nguyễn Tất Thành</option>
+<option value="37000">THCS và THPT Hai Bà Trưng</option>
+</select>
+
+<button onclick="register()">ĐĂNG KÝ NGAY</button>
+
+<div class="priceBox" id="priceBox">
+<h3>Số tiền cần thanh toán</h3>
+
+<div class="price" id="price"></div>
+
+<img id="qr" class="qr">
+
+<p style="margin-top:10px">
+Ngân hàng VCB<br>
+STK: 7876159680
+</p>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Đăng nhập Admin</h2>
+
+<input id="adminUser" placeholder="Tài khoản">
+
+<input id="adminPass" type="password" placeholder="Mật khẩu">
+
+<button onclick="loginAdmin()">Đăng nhập</button>
+
+</div>
+
+<div class="card adminPanel" id="adminPanel">
+
+<h2>Danh sách đăng ký</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>STT</th>
+<th>Họ tên</th>
+<th>SĐT</th>
+<th>Gmail</th>
+<th>Lớp</th>
+<th>Trường</th>
+<th>Giá</th>
+<th>Thời gian</th>
+</tr>
+
+</thead>
+
+<tbody id="dataTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+push,
+onValue
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyDtAU-Iqn-u39_mgkxRZ3fIF_Kyxqn-Gyg",
+
+authDomain: "csdl-bio.firebaseapp.com",
+
+databaseURL: "https://csdl-bio-default-rtdb.firebaseio.com",
+
+projectId: "csdl-bio",
+
+storageBucket: "csdl-bio.firebasestorage.app",
+
+messagingSenderId: "568258817515",
+
+appId: "1:568258817515:web:77070bdcfc1e421ca63dae",
+
+measurementId: "G-DZ8FP4XZ69"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+window.register = function(){
+
+const name = document.getElementById('name').value.trim();
+
+const phone = document.getElementById('phone').value.trim();
+
+const gmail = document.getElementById('gmail').value.trim();
+
+const lop = document.getElementById('lop').value.trim();
+
+const schoolSelect = document.getElementById('school');
+
+const schoolName =
+schoolSelect.options[schoolSelect.selectedIndex].text;
+
+const amount = schoolSelect.value;
+
+if(!name || !phone || !gmail || !lop || !amount){
+
+alert("Nhập đầy đủ thông tin");
+
+return;
+
+}
+
+if(!gmail.endsWith("@gmail.com")){
+
+alert("Gmail không hợp lệ");
+
+return;
+
+}
+
+const data = {
+
+name,
+
+phone,
+
+gmail,
+
+lop,
+
+school:schoolName,
+
+amount,
+
+time:new Date().toLocaleString('vi-VN')
+
+};
+
+push(ref(db,"THPT2026"),data);
+
+document.getElementById('priceBox').style.display='block';
+
+document.getElementById('price').innerHTML=
+Number(amount).toLocaleString('vi-VN')+" VNĐ";
+
+const qr=
+`https://img.vietqr.io/image/VCB-7876159680-compact.png?amount=${amount}&addInfo=THPT2026_${phone}&accountName=HUYNH%20CONG%20THANH`;
+
+document.getElementById('qr').src=qr;
+
+alert("Đăng ký thành công!");
+
+};
+
+window.loginAdmin=function(){
+
+const user=document.getElementById('adminUser').value;
+
+const pass=document.getElementById('adminPass').value;
+
+if(user==="123" && pass==="122"){
+
+document.getElementById('adminPanel').style.display='block';
+
+loadData();
+
+}else{
+
+alert("Sai tài khoản hoặc mật khẩu");
+
+}
+
+}
+
+function loadData(){
+
+const tbody=document.getElementById('dataTable');
+
+onValue(ref(db,"THPT2026"),(snapshot)=>{
+
+tbody.innerHTML='';
+
+let stt=1;
+
+snapshot.forEach(child=>{
+
+const d=child.val();
+
+tbody.innerHTML+=`
+
+<tr>
+
+<td>${stt++}</td>
+
+<td>${d.name}</td>
+
+<td>${d.phone}</td>
+
+<td>${d.gmail}</td>
+
+<td>${d.lop}</td>
+
+<td>${d.school}</td>
+
+<td>${Number(d.amount).toLocaleString('vi-VN')}đ</td>
+
+<td>${d.time}</td>
+
+</tr>
+
+`;
+
+});
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
